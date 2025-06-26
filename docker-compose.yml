@@ -1,0 +1,54 @@
+services:
+  web:
+    build: .
+    container_name: qst4Prova_web
+    ports: 
+      - "80:80"
+    volumes:
+      - ./app:/var/www/html
+    networks:
+      - qst4Prova_network
+    depends_on:
+      - db
+    restart: unless-stopped
+
+  db:
+    image: mysql:8.0
+    container_name: qst4Prova_banco
+    environment:
+      MYSQL_ROOT_PASSWORD: root123
+      MYSQL_DATABASE: aval_acao
+      MYSQL_USER: user 
+      MYSQL_PASSWORD: pass 
+    ports:
+      - "3306:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - qst4Prova_network
+    restart: unless-stopped
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: qst4Prova_phpmyadmin
+    environment:
+      PMA_HOST: db
+      PMA_PORT: 3306
+      PMA_USER: root
+      PMA_PASSWORD: root123
+      MYSQL_ROOT_PASSWORD: root123 
+    ports:
+      - "8080:80"
+    depends_on:
+      - db
+    networks:
+      - qst4Prova_network
+    restart: unless-stopped
+
+volumes:
+  db_data:
+
+networks:
+  qst4Prova_network:
+    driver: bridge
